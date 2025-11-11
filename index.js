@@ -40,12 +40,29 @@ async function run() {
       res.send(result);
     });
 
+    // Get habit by ID
+    app.get("/habit/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await habitCollection.findOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
+
     // Add habit
     app.post("/habit", async (req, res) => {
       const habit = req.body;
       habit.createdAt = new Date(); // Add createdAt timestamp
       const result = await habitCollection.insertOne(habit);
       res.send({ success: true, habitId: result.insertedId });
+    });
+    // Update habit
+    app.put("/habit/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedHabit = req.body;
+      const result = await habitCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedHabit }
+      );
+      res.send({ success: result.modifiedCount > 0 });
     });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
