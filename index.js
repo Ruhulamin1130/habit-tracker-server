@@ -26,6 +26,27 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const db = client.db("habitdb");
+    const habitCollection = db.collection("habit");
+
+    app.get("/habit", async (req, res) => {
+      const result = await habitCollection
+        .find()
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .toArray();
+
+      res.send(result);
+    });
+
+    // Add habit
+    app.post("/habit", async (req, res) => {
+      const habit = req.body;
+      habit.createdAt = new Date(); // Add createdAt timestamp
+      const result = await habitCollection.insertOne(habit);
+      res.send({ success: true, habitId: result.insertedId });
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
