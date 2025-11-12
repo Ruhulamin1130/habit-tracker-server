@@ -101,29 +101,44 @@ async function run() {
       const id = req.params.id;
       if (!ObjectId.isValid(id))
         return res.status(400).send({ error: "Invalid habit ID" });
+
       try {
         const habit = await habitCollection.findOne({ _id: new ObjectId(id) });
         if (!habit) return res.status(404).send({ error: "Habit not found" });
 
-        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-        const history = habit.completionHistory || [];
+        const today = new Date().toISOString().split("T")[0];
+        let history = habit.completionHistory || [];
 
         if (history.includes(today)) {
-          return res
-            .status(400)
-            .send({
-              success: false,
-              message: "Already marked complete today!",
-            });
+          return res.status(400).send({
+            success: false,
+            message: "Already marked complete today!",
+          });
         }
 
         history.push(today);
-        const result = await habitCollection.updateOne(
+
+        // ✅ Current streak গণনা
+        history.sort((a, b) => new Date(b) - new Date(a)); // newest first
+        let streak = 1;
+        for (let i = 1; i < history.length; i++) {
+          const diff =
+            (new Date(history[i - 1]) - new Date(history[i])) /
+            (1000 * 60 * 60 * 24);
+          if (diff === 1) streak++;
+          else break;
+        }
+
+        await habitCollection.updateOne(
           { _id: new ObjectId(id) },
-          { $set: { completionHistory: history } }
+          { $set: { completionHistory: history, currentStreak: streak } }
         );
 
-        res.send({ success: true, completionHistory: history });
+        res.send({
+          success: true,
+          completionHistory: history,
+          currentStreak: streak,
+        });
       } catch (err) {
         res.status(500).send({ error: "Failed to mark complete" });
       }
