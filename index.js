@@ -24,7 +24,7 @@ async function run() {
     const db = client.db("habitdb");
     const habitCollection = db.collection("habit");
 
-    // 1️⃣ Get latest 6 habits (Featured Habits)
+    // 1 Get latest 6 habits (Featured Habits)
     app.get("/habit", async (req, res) => {
       try {
         const result = await habitCollection
@@ -38,7 +38,7 @@ async function run() {
       }
     });
 
-    // 2️⃣ Get all habits of a user
+    // 2 Get all habits of a user
     app.get("/my-habits/:email", async (req, res) => {
       const email = req.params.email;
       try {
@@ -52,7 +52,7 @@ async function run() {
       }
     });
 
-    // 3️⃣ Get habit by ID
+    // 3 Get habit by ID
     app.get("/habit/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id))
@@ -66,7 +66,7 @@ async function run() {
       }
     });
 
-    // 4️⃣ Add habit
+    // 4 Add habit
     app.post("/habit", async (req, res) => {
       const habit = req.body;
       habit.createdAt = new Date();
@@ -79,7 +79,7 @@ async function run() {
       }
     });
 
-    // 5️⃣ Update habit
+    // 5 Update habit
     app.put("/habit/:id", async (req, res) => {
       const id = req.params.id;
       const updatedHabit = req.body;
@@ -118,7 +118,7 @@ async function run() {
 
         history.push(today);
 
-        // ✅ Current streak গণনা
+        //  Current strea
         history.sort((a, b) => new Date(b) - new Date(a)); // newest first
         let streak = 1;
         for (let i = 1; i < history.length; i++) {
@@ -144,7 +144,7 @@ async function run() {
       }
     });
 
-    // 7️⃣ Delete habit
+    // 7 Delete habit
     app.delete("/habit/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id))
